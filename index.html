@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Obsivium - Developer Portfolio</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <canvas id="glcanvas"></canvas>
+        <div class="cursor-glow" id="cursorGlow"></div>
+
+        <nav>
+            <a href="#" class="active" onclick="showTab('about')">About</a>
+            <a href="#" onclick="showTab('projects')">Projects</a>
+        </nav>
+
+        <div class="main-container">
+            <div class="info-box">
+                <div id="about" class="tab active">
+                    <h1>Hi <span class="wave">👋</span></h1>
+                    <p id="bio"></p>
+                    <p>I first started to write code when i was 7</p>
+                    <p>I didn't stop since...</p>
+
+                    <h2>What I do</h2>
+                    <ul>
+                        <li>
+                            I usually mess around with stuff cause i love
+                            tinkering.
+                        </li>
+                        <li>
+                            I love C but i'm not good at it as i'm in Python.
+                        </li>
+                        <li>
+                            I tinker with Arduinos, ESP32s, sensors, servos.
+                            Maybe I will do a cool project..
+                        </li>
+                    </ul>
+
+                    <p class="footer-text">
+                        Want to know more? Stick around – there's always another
+                        project on the way (probably).<br />
+                        See you soon!
+                    </p>
+
+                    <div class="social-links">
+                        <a
+                            href="https://github.com/obsivium"
+                            target="_blank"
+                            title="GitHub"
+                        >
+                            <svg
+                                width="24"
+                                height="24"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                                />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="projects" class="tab">
+                    <h2>Things I've Built</h2>
+                    <div class="project-grid"></div>
+
+                    <p class="footer-text">More projects coming soon... 🚀</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced WebGL Shader -->
+        <script id="fragShader" type="x-shader/x-fragment">
+            precision highp float;
+                   uniform float u_time;
+                   uniform vec2 u_res;
+                   uniform vec2 u_mouse;
+
+                   float hash(vec2 p) {
+                     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+                   }
+
+                   float noise(vec2 p) {
+                     vec2 i = floor(p);
+                     vec2 f = fract(p);
+                     float a = hash(i);
+                     float b = hash(i + vec2(1.0, 0.0));
+                     float c = hash(i + vec2(0.0, 1.0));
+                     float d = hash(i + vec2(1.0, 1.0));
+                     vec2 u = f * f * (3.0 - 2.0 * f);
+                     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+                   }
+
+                   float fbm(vec2 st) {
+                     float value = 0.0;
+                     float amp = 0.5;
+                     for (int i = 0; i < 6; i++) {
+                       value += amp * noise(st);
+                       st *= 2.0;
+                       amp *= 0.5;
+                     }
+                     return value;
+                   }
+
+                   void main() {
+                     vec2 st = gl_FragCoord.xy / u_res.xy;
+                     vec2 mouse = u_mouse / u_res.xy;
+
+                     st *= 3.0;
+                     float t = u_time * 0.3;
+
+                     // Add mouse interaction
+                     float mouseInfluence = 0.5 / (distance(st, mouse * 3.0) + 1.0);
+
+                     st.x += sin(st.y * 3.0 + t) * 0.1 * (1.0 + mouseInfluence);
+                     st.y += cos(st.x * 3.0 - t) * 0.1 * (1.0 + mouseInfluence);
+
+                     float n = fbm(st + vec2(t * 0.2, t * 0.15));
+                     float n2 = fbm(st * 1.5 + vec2(t * -0.3, t * 0.25));
+
+                     // Dynamic color palette
+                     vec3 color1 = vec3(1.0, 0.3, 0.05); // Orange-red
+                     vec3 color2 = vec3(1.0, 0.7, 0.3);  // Gold
+                     vec3 color3 = vec3(0.1, 0.05, 0.2); // Deep purple
+
+                     float blend = 0.5 + 0.5 * sin(t * 0.5 + n * 3.0);
+                     vec3 lava = mix(color1, color2, n);
+                     vec3 obsidian = mix(color3, color3 * 1.5, n2);
+
+                     vec3 finalColor = mix(obsidian, lava, blend * blend);
+
+                     // Add subtle glow
+                     finalColor += vec3(0.05, 0.02, 0.01) * (1.0 - length(st - vec2(1.5)));
+
+                     gl_FragColor = vec4(finalColor * 0.8, 1.0);
+                   }
+        </script>
+
+        <script id="vertShader" type="x-shader/x-vertex">
+            attribute vec4 a_position;
+            void main() {
+              gl_Position = a_position;
+            }
+        </script>
+
+        <script src="main.js"></script>
+    </body>
+</html>
