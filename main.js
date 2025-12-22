@@ -86,20 +86,26 @@ if (window.matchMedia("(hover: hover)").matches) {
   });
 }
 
-// Calculate age
-function calculateAge() {
-  const birth = new Date(2013, 1, 1);
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-  return age;
+/* =========================
+   Experience years (replace age)
+   ========================= */
+
+// Set the year you started coding (you said you started at 7)
+function experienceYears() {
+  const startYear = 2020; // <-- change this if needed
+  const now = new Date().getFullYear();
+  const years = Math.max(0, now - startYear);
+  return years;
+}
+
+// Optional: "6+ years" style
+function experienceLabel() {
+  const y = experienceYears();
+  return y <= 0 ? "1+ year" : `${y}+ years`;
 }
 
 document.getElementById("bio").innerText =
-  `I'm Obsivium. I am a ${calculateAge()}/yo developer. I am interested in CLI Tools, Kernel Stuff and Fun Stuff`;
+  `I'm Obsivium. I've been coding for ${experienceLabel()}. I'm interested in CLI tools, kernels, and building fun systems.`;
 
 // Tab switching with animation
 function showTab(tabId) {
