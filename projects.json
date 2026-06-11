@@ -1,0 +1,23 @@
+[
+  {
+    "name": "CloudTunnel",
+    "description": "An automated infrastructure utility that establishes secure bridges between local Linux environments and public DNS records via the Cloudflare API. Fully automates Playit.gg tunnel lifecycle management.",
+    "tags": ["Python", "Linux", "API", "Networking"],
+    "image": "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&w=600&q=80",
+    "link": "https://github.com/Obsivium/CloudTunnel"
+  },
+  {
+    "name": "WordFall Engine",
+    "description": "A high-performance technical case study in reverse-engineering and state machine simulation. Replicates real-time interactive game loops while keeping core state tracking completely decoupled from the rendering layer.",
+    "tags": ["JavaScript", "DOM", "State Machine", "JSON Schema"],
+    "image": "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=600&q=80",
+    "link": "https://github.com/Obsivium"
+  },
+  {
+    "name": "Raylib C Workspace",
+    "description": "A streamlined development template for compiling low-level graphical applications in C. Features automated Makefile systems, native compilation tools, and pre-configured workspace paths.",
+    "tags": ["C", "Make", "Raylib", "Low-Level"],
+    "image": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=600&q=80",
+    "link": "https://github.com/Obsivium"
+  }
+]

@@ -1,8 +1,7 @@
-// WebGL Setup
+// WebGL Context & Render Setup
 const canvas = document.getElementById("glcanvas");
 const gl = canvas.getContext("webgl");
-let mouseX = 0,
-  mouseY = 0;
+let mouseX = 0, mouseY = 0;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -31,25 +30,13 @@ function createProgram(gl, vShader, fShader) {
   return program;
 }
 
-const vertShader = createShader(
-  gl,
-  gl.VERTEX_SHADER,
-  document.getElementById("vertShader").textContent,
-);
-const fragShader = createShader(
-  gl,
-  gl.FRAGMENT_SHADER,
-  document.getElementById("fragShader").textContent,
-);
+const vertShader = createShader(gl, gl.VERTEX_SHADER, document.getElementById("vertShader").textContent);
+const fragShader = createShader(gl, gl.FRAGMENT_SHADER, document.getElementById("fragShader").textContent);
 const program = createProgram(gl, vertShader, fragShader);
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.bufferData(
-  gl.ARRAY_BUFFER,
-  new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-  gl.STATIC_DRAW,
-);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
 
 const positionLocation = gl.getAttribLocation(program, "a_position");
 const timeLocation = gl.getUniformLocation(program, "u_time");
@@ -71,13 +58,12 @@ function render(time) {
 }
 requestAnimationFrame(render);
 
-// Mouse tracking
+// Interaction Events
 document.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = window.innerHeight - e.clientY;
 });
 
-// Cursor glow effect
 const cursorGlow = document.getElementById("cursorGlow");
 if (window.matchMedia("(hover: hover)").matches) {
   document.addEventListener("mousemove", (e) => {
@@ -86,29 +72,21 @@ if (window.matchMedia("(hover: hover)").matches) {
   });
 }
 
-/* =========================
-   Experience years (replace age)
-   ========================= */
-
-// Set the year you started coding (you said you started at 7)
+// Experience Engine
 function experienceYears() {
-  const startYear = 2020; // <-- change this if needed
-  const now = new Date().getFullYear();
-  const years = Math.max(0, now - startYear);
-  return years;
+  const currentYear = new Date().getFullYear();
+  const birthYear = 2013;
+  const startYear = birthYear + 7; // 2020
+  return Math.max(0, currentYear - startYear);
 }
 
-// Optional: "6+ years" style
-function experienceLabel() {
-  const y = experienceYears();
-  return y <= 0 ? "1+ year" : `${y}+ years`;
-}
+document.getElementById("bio").innerText = 
+  `I am a systems developer and hardware designer with ${experienceYears()}+ years of continuous engineering experience. I build network automation scripts, low-level templates, and custom machines.`;
 
-document.getElementById("bio").innerText =
-  `I'm Obsivium. I've been coding for ${experienceLabel()}. I'm interested in CLI tools, kernels, and building fun systems.`;
-
-// Tab switching with animation
-function showTab(tabId) {
+// Navigation Control
+function showTab(tabId, event) {
+  if (event) event.preventDefault();
+  
   const tabs = document.querySelectorAll(".tab");
   const navLinks = document.querySelectorAll("nav a");
 
@@ -116,57 +94,44 @@ function showTab(tabId) {
   navLinks.forEach((link) => link.classList.remove("active"));
 
   document.getElementById(tabId).classList.add("active");
-  event.target.classList.add("active");
+  if (event) event.target.classList.add("active");
 }
 
-// Resize handler
 window.addEventListener("resize", resizeCanvas);
 
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-  });
-});
-
-// Add subtle parallax effect on scroll
-window.addEventListener("scroll", () => {
-  const scrolled = window.pageYOffset;
-  const parallax = document.querySelector(".info-box");
-  if (parallax) {
-    parallax.style.transform = `translateY(${scrolled * 0.3}px)`;
-  }
-});
-
+// Load JSON Showcase Projects
 async function loadProjects() {
-  const grid = document.getElementsByClassName("project-grid")[0];
-  grid.innerHTML = "<p>Loading projects...</p>";
+  const grid = document.querySelector(".project-grid");
+  grid.innerHTML = "<p class='loading-text'>Loading projects...</p>";
 
   try {
-    const response = await fetch(
-      "https://api.github.com/users/obsivium/repos?sort=updated",
-    );
-    const repos = await response.json();
+    const response = await fetch("./projects.json");
+    const projects = await response.json();
 
     grid.innerHTML = "";
-    repos.forEach((repo) => {
-      if (repo.fork) return; // skip forks
-
+    projects.forEach((project) => {
       const card = document.createElement("div");
       card.className = "project-card";
+      
+      const tagElements = project.tags.map(t => `<span class="tag">${t}</span>`).join("");
+
       card.innerHTML = `
-<a href="${repo.html_url}" target="_blank">
-  <h3>${repo.name}</h3>
-  <p>${repo.description || "No description provided."}</p>
-  <span class="tag">${repo.language || "Unknown"}</span>
-  <span class="tag">⭐ ${repo.stargazers_count}</span>
-</a>
-`;
+        <a href="${project.link}" target="_blank">
+          <div class="card-img-wrapper">
+            <img src="${project.image}" alt="${project.name}" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h3>${project.name}</h3>
+            <p>${project.description}</p>
+            <div class="tag-container">${tagElements}</div>
+          </div>
+        </a>
+      `;
       grid.appendChild(card);
     });
   } catch (err) {
     console.error(err);
-    grid.innerHTML = "<p>⚠️ Failed to load projects.</p>";
+    grid.innerHTML = "<p>Error: Failed to load projects list.</p>";
   }
 }
 
